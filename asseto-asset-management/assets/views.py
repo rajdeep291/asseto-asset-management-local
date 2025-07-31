@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 
 PAGE_SIZE = 10
@@ -83,13 +85,17 @@ def details(request, id):
         Asset.undeleted_objects, pk=id, organization=request.user.organization)
     assetSpecifications = AssetSpecification.objects.filter(asset=asset)
 
+    months_int=asset.product.eol
+    today=timezone.now().date()
+    eol_date= today+relativedelta(months=months_int) 
+
     history_list = asset.history.all()
     paginator = Paginator(history_list, 5, orphans=1)
     page_number = request.GET.get('page')
     page_object = paginator.get_page(page_number)
 
     context = {'sidebar': 'assets', 'asset': asset, 'submenu': 'list', 'page_object': page_object,
-               'assetSpecifications': assetSpecifications, 'title': 'Asset - Details'}
+               'assetSpecifications': assetSpecifications, 'title': 'Asset - Details','eol_date':eol_date}
     return render(request, 'assets/detail.html', context=context)
 
 
@@ -145,7 +151,7 @@ def add(request):
                      organization=request.user.organization)
 
     if request.method == "POST":
-
+        print(request.POST)
         if form.is_valid():
             asset = form.save(commit=False)
             asset.organization = request.user.organization

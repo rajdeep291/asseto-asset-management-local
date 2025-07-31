@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from dashboard.models import TimeStampModel, Organization, ProductCategory, ProductType, SoftDeleteModel
+from dashboard.models import TimeStampModel, Organization, ProductCategory, ProductType, SoftDeleteModel,ProductSubCatagory
 import os
 from uuid import uuid4
 from django_resized import ResizedImageField
@@ -27,6 +27,7 @@ class Product(TimeStampModel, SoftDeleteModel):
     eol=models.IntegerField(blank=True,null=True)
     description = models.TextField(blank=True, null=True)
     product_category = models.ForeignKey(ProductCategory, models.DO_NOTHING, blank=True, null=True)
+    product_sub_category = models.ForeignKey(ProductSubCatagory, models.DO_NOTHING, blank=True, null=True)
     product_type = models.ForeignKey(ProductType, models.DO_NOTHING, blank=True, null=True)
     organization = models.ForeignKey(Organization, models.DO_NOTHING, blank=True, null=True)
     history = HistoricalRecords()

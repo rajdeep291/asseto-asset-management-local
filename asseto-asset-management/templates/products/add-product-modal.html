@@ -10,63 +10,89 @@
       aria-label="Close"
     ></button>
   </div>
-  <form hx-encoding="multipart/form-data" hx-post="{{request.path}}" novalidate>
+
+  <form id="add-product-form" method="POST" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     <div class="modal-body">
-      <div class="form-group">
+      <!-- Product Name -->
+      <div class="form-group mb-2">
         <label>Product Name</label>
-        {{form.name}} {% for error in form.name.errors %}
-        <small class="text-danger mb-3">{{ error }}</small>
+        {{ form.name }}
+        {% for error in form.name.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
         {% endfor %}
       </div>
-      
-      <div class="form-group">
+
+      <!-- Product Category -->
+      <div class="form-group mb-2">
         <label>Product Category</label>
-        {{form.product_category}} {% for error in form.product_category.errors %}
-        <small class="text-danger mb-3">{{ error }}</small>
+        {{ form.product_category }}
+        {% for error in form.product_category.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
         {% endfor %}
       </div>
 
-      <div class="form-group">
+      <!-- Product Sub Category -->
+      <div class="form-group mb-2">
+        <label>Product Sub Category</label>
+        {{ form.product_sub_category }}
+        {% for error in form.product_sub_category.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
+        {% endfor %}
+      </div>
+
+      <!-- Product Type -->
+      <div class="form-group mb-2">
         <label>Product Type</label>
-        {{form.product_type}} {% for error in form.product_type.errors %}
-        <small class="text-danger mb-3">{{ error }}</small>
+        {{ form.product_type }}
+        {% for error in form.product_type.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
         {% endfor %}
       </div>
 
-      <div class="form-group">
+      <!-- Manufacturer -->
+      <div class="form-group mb-2">
         <label>Manufacturer</label>
-        {{form.manufacturer}} {% for error in form.manufacturer.errors %}
-        <small class="text-danger mb-3">{{ error }}</small>
+        {{ form.manufacturer }}
+        {% for error in form.manufacturer.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
         {% endfor %}
       </div>
 
-      <div class="form-group">
+      <!-- Model -->
+      <div class="form-group mb-2">
         <label>Model</label>
-        {{form.model}} {% for error in form.model.errors %}
-        <small class="text-danger mb-3">{{ error }}</small>
+        {{ form.model }}
+        {% for error in form.model.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
         {% endfor %}
       </div>
 
-      <div class="form-group">
+      <!-- Product EOL -->
+      <div class="form-group mb-2">
         <label>Product EOL</label>
-        {{form.eol}} {% for error in form.model.errors %}
-        <small class="text-danger mb-3">{{ error }}</small>
+        {{ form.eol }}
+        {% for error in form.eol.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
         {% endfor %}
       </div>
 
-      <div class="form-group">
+      <!-- Description -->
+      <div class="form-group mb-2">
         <label>Description</label>
-        {{form.description}} {% for error in form.description.errors %}
-        <small class="text-danger mb-3">{{ error }}</small>
+        {{ form.description }}
+        {% for error in form.description.errors %}
+          <small class="text-danger mb-3">{{ error }}</small>
         {% endfor %}
       </div>
 
+      <!-- Product Image -->
       <div class="d-flex justify-content-between me-4">
         <div class="form-group" style="width: 50%">
           <label>Product Image</label>
-          {{form.product_picture}} {% for error in form.product_picture.errors %}
-          <small class="text-danger mb-3">{{ error }}</small>
+          {{ form.product_picture }}
+          {% for error in form.product_picture.errors %}
+            <small class="text-danger mb-3">{{ error }}</small>
           {% endfor %}
         </div>
         <div class="form-group" id="imagePreview"></div>
@@ -79,46 +105,90 @@
         class="btn btn-sm btn-light-secondary"
         data-bs-dismiss="modal"
       >
-        <i class="bx bx-x d-block d-sm-none"></i>
         <span class="d-none d-sm-block">Close</span>
       </button>
 
       <button
         type="submit"
+        id="submit-button"
         class="btn btn-sm btn-info ml-1"
-        onclick="this.innerHTML = `<span class='spinner-grow spinner-grow-sm' role='status' aria-hidden='true'></span> Saving...`;"
       >
-        <i class="bx bx-check d-block d-sm-none"></i>
         <span class="d-none d-sm-block">Save</span>
       </button>
     </div>
   </form>
+
   <script>
-    htmx.on("htmx:beforeSwap", (e) => {
-      if (
-        e.detail.target.id == "add-product-modal-content" &&
-        !e.detail.xhr.response
-      ) {
-        location.reload();
-      }
-    });
+    // Preview uploaded image
     function filePreview(input) {
       if (input.files && input.files[0]) {
         var reader = new FileReader();
         reader.onload = function (e) {
-          $("#imagePreview + img").remove();
-          $("#imagePreview").after(
-            '<img src="' +
-              e.target.result +
-              '" class="rounded" width="100" height="80"/>'
+          $("#imagePreview").html(
+            `<img src="${e.target.result}" class="rounded" width="100" height="80" />`
           );
         };
         reader.readAsDataURL(input.files[0]);
       }
     }
-    $("#inputFile").change(function () {
-      $("#imagePreview img").remove();
+
+    // Bind preview on file input
+    $(document).on("change", "#id_product_picture", function () {
       filePreview(this);
+    });
+
+    // Submit the form with AJAX
+    $("#add-product-form").on("submit", function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const $btn = $("#submit-button");
+
+      $btn.html(
+        `<span class='spinner-grow spinner-grow-sm' role='status' aria-hidden='true'></span> Saving...`
+      );
+
+      $.ajax({
+        url: "{{ request.path }}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (data, status, xhr) {
+          if (xhr.status === 204) {
+            location.reload();
+          } else {
+            $(".modal-content").html(data);
+          }
+        },
+        error: function (xhr) {
+          console.error("Form submission failed", xhr.responseText);
+          $btn.html(`<span class="d-none d-sm-block">Save</span>`);
+        },
+      });
+    });
+
+    // Dynamic loading of subcategories based on selected category
+    $(document).on('change', '#id_product_category', function() {
+      let categoryId = $(this).val();
+
+      let $subCat = $('#id_product_sub_category');
+      $subCat.html('<option>Loading...</option>');
+
+      $.ajax({
+        url: '/get-subcategories/',  // Replace with your actual URL
+        data: { 'category_id': categoryId },
+        success: function(data) {
+          let options = '<option value="">--SELECT--</option>';
+          data.forEach(function(item){
+            options += `<option value="${item.id}">${item.name}</option>`;
+          });
+          $subCat.html(options);
+        },
+        error: function() {
+          $subCat.html('<option>Error loading subcategories</option>');
+        }
+      });
     });
   </script>
 </div>

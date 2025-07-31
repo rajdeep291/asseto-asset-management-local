@@ -28,7 +28,7 @@
                     <span>Asset Information</span>                       
                 </h6>
                 <div class="table-responsive">
-                    <table class="table table-borderless">
+                    <table class="table table-borderless" style="width: 100%;">
                         <tbody>
                             <tr>
                                 <th scope="row">Asset Name</th>
@@ -59,6 +59,8 @@
                                 <td>{{asset.purchase_date}}</td>
                                 <th scope="row">Warranty Expiry Date</th>
                                 <td>{{asset.warranty_expiry_date}}</td>
+                                <th scope="row">End of Life</th>
+                                <td>{{eol_date}}</td>
                             </tr>
                             <tr>
                                 <th scope="row">Description</th>

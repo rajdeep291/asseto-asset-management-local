@@ -9,7 +9,7 @@ class AddProductsForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'product_picture', 'manufacturer',
-        'model','eol','description', 'product_category', 'product_type']
+        'model','eol','description', 'product_category', 'product_sub_category','product_type']
 
 
     name = forms.CharField(required=True, widget=forms.TextInput(
@@ -42,6 +42,13 @@ class AddProductsForm(forms.ModelForm):
         widget=forms.Select(
             attrs={'class': 'form-control'}
         ))
+    
+    product_sub_category = forms.ModelChoiceField(
+        queryset=None,
+        empty_label='--SELECT--',
+        widget=forms.Select(
+            attrs={'class': 'form-control'}
+        ))
 
     product_type = forms.ModelChoiceField(
         queryset=None,
@@ -54,6 +61,8 @@ class AddProductsForm(forms.ModelForm):
         self._organization = kwargs.pop('organization', None)
         super().__init__(*args, **kwargs)
         self.fields['product_category'].queryset = ProductCategory.undeleted_objects.filter(
+            organization=self._organization, status=True)
+        self.fields['product_sub_category'].queryset = ProductSubCatagory.undeleted_objects.filter(
             organization=self._organization, status=True)
         self.fields['product_type'].queryset = ProductType.undeleted_objects.filter(
             organization=self._organization, status=True)

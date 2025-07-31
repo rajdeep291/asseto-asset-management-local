@@ -117,6 +117,16 @@ class ProductCategory(TimeStampModel, SoftDeleteModel):
 
     def __str__(self):
         return self.name
+    
+class ProductSubCatagory(TimeStampModel,SoftDeleteModel):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4,editable=False)
+    name=models.CharField(max_length=50, blank=True, null=True)
+    category=models.ForeignKey(ProductCategory,models.DO_NOTHING, blank=True, null=True)
+    organization=models.ForeignKey(Organization,models.DO_NOTHING, null=True, blank=True)
+    hiatory=HistoricalRecords()
+
+    def __str__(self):
+        return self.name
 
 
 class Address(TimeStampModel):
